@@ -7,3 +7,5 @@ Here you can find my personal projects. I love to try new programming stuff, so 
 * University Cool Stuff
   - C++, R, LaTeX, OpenGL and 恋人.
 * etc...
+---
+PS: Read the documentation (if there is one).
