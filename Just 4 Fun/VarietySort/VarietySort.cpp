@@ -1,6 +1,6 @@
 /**
         VARIETY SORT
-        Based on CodeChef Post (http://bit.ly/2JFlhuU)
+        Based on CodeChef Post
         
         Author: Leonardo H. Añez Vladimirovna
         Compiler: GNU CCC Compiler - C++11
