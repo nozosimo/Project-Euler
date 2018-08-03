@@ -7,6 +7,9 @@
 ### Videos
   * [What is a Shader? | Pixel and Vertex Shaders](https://www.youtube.com/watch?v=TDZMSozKZ20)
   * [Overview of GLSL, the OpenGL Shading Language](https://www.youtube.com/watch?v=uOErsQljpHs)
+### Pointers
+  * [Pointers](https://www.youtube.com/watch?v=W0aE-w61Cb8)
+  
 ## Libraries
   * [GLFW](http://www.glfw.org/)
   * [GLEW](http://glew.sourceforge.net/)
