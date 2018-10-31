@@ -1,53 +1,56 @@
-#include<iostream>
+#include <iostream>
 
 #define GLEW_STATIC
-#include <gl/glew.h>
-#include <GLFW/glfw3.h>
+#include "GL/glew.h" // Anadimos glew antes ya que GLFW usa algunas librerias de OpenGL que se llaman aqui
+#include "GLFW/glfw3.h"
 
-const GLint ANCHO = 800, ALTO = 600;
+
+using namespace std;
+
+const char *APP_TITTLE = "Hola Mundo!";
+const int gWindowWidth = 640;
+const int gWindowHeight = 480;
 
 int main()
 {
-	 glfwInit();
-	 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
-	 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
-	 glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
-	 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
-	 glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
-
-	GLFWwindow *Ventana = glfwCreateWindow(ANCHO,ALTO,"Hello World!",nullptr,nullptr);
-	int ScreenWidth,ScreenHeight;
-	glfwGetFramebufferSize(Ventana,&ScreenWidth,&ScreenHeight);
-
-	if (Ventana == nullptr)
+	if(!glfwInit())
 	{
-		std::cout<<"Error Creando la Ventana"<<std::endl;
-		glfwTerminate();
-		return EXIT_FAILURE;
+		cerr<< "Inicializacion de GLFW Fallida"<<endl;
+		return -1;
 	}
 
-	glfwMakeContextCurrent(Ventana);
+	// Definimos la version de OpenGL que usaremos
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
+
+	GLFWwindow *pWindow = glfwCreateWindow(gWindowWidth,gWindowHeight,APP_TITTLE,NULL,NULL);
+	
+	if (pWindow == NULL)
+	{
+		cerr<<"Error al crear ventana en GLFW"<<endl;
+		return -1;
+	}
+
+	glfwMakeContextCurrent(pWindow);
 
 	glewExperimental = GL_TRUE;
-
-	if (GLEW_OK != glewInit())
+	if (glewInit()!=GLEW_OK)
 	{
-		std::cout<<"Error al Iniciar GLEW"<<std::endl;
-		return EXIT_FAILURE;
+		cerr<< "Inicializacion de GLEW Fallida!"<<endl;
+		return -1;
 	}
 
-	glViewport(0,0,ScreenWidth,ScreenHeight);
-
-	while(!glfwWindowShouldClose(Ventana))
+	while (!glfwWindowShouldClose(pWindow))
 	{
 		glfwPollEvents();
 
-		glClearColor(0.2f,0.3f,0.3f,1.0f);
-
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glfwSwapBuffers(Ventana);
+		glfwSwapBuffers(pWindow);
 	}
-	 glfwTerminate();
-	 return EXIT_SUCCESS;
+
+
+	glfwTerminate();
+
+	return 0;
 }
