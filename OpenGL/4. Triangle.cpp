@@ -1,254 +1,216 @@
 #include <iostream>
 #include <sstream>
 #define GLEW_STATIC
-#include "GL/glew.h"
+#include "GL/glew.h" // Anadimos glew antes ya que GLFW usa algunas librerias de OpenGL que se llaman aqui
 #include "GLFW/glfw3.h"
 
 
-// Global Variables
-const char* APP_TITLE = "Triangle Extension to Square";
-const int gWindowWidth = 800;
-const int gWindowHeight = 600;
-GLFWwindow* gWindow = NULL;
-bool gWireframe = false;
+using namespace std;
 
-// Shaders, ni la mas perra Idea de esta parte
-const GLchar* vertexShaderSrc = 
+const char *APP_TITTLE = "Introduccion a OpenGL";
+const int gWindowWidth = 1024;
+const int gWindowHeight = 720;
+bool gfullscreen = false;
+GLFWwindow *pWindow;
+
+const GLchar* vertexShaderSrc =
 "#version 330 core\n"
-"layout (location = 0) in vec3 pos;"
+"layout (location=0) in vec3 pos;"
 "void main()"
 "{"
-"   gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);"
-"}";
-const GLchar* fragmentShaderSrc = 
+"	gl_Position = vec4(pos.x,pos.y,pos.z,1.0);"
+"}"
+;
+
+const GLchar* fragmentShaderSrc =
 "#version 330 core\n"
 "out vec4 frag_color;"
 "void main()"
 "{"
-"   frag_color = vec4(0.35f, 0.96f, 0.3f, 1.0f);"
-"}";
+"	frag_color = vec4(1.0f,0.0f,0.0f,1.0f);"
+"}"
+;
 
-
-void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode);
-void glfw_onFramebufferSize(GLFWwindow* window, int width, int height);
-void showFPS(GLFWwindow* window);
-bool initOpenGL();
-
+// Prototipos
+void glfw_onKey(GLFWwindow* window,int key,int scancode,int action,int mode);
+void showFPS(GLFWwindow*window);
+bool inicializarOpenGL();
 
 int main()
 {
-	if (!initOpenGL())
+	if (!inicializarOpenGL())
 	{
-
-		std::cerr << "GLFW initialization failed" << std::endl;
+		cerr<< "OpenGL no pudo Inicializar" <<endl;
 		return -1;
 	}
 
-	GLfloat vertices[] = {
-		-0.5f,  0.5f, 0.0f,		// Top left
-		0.5f,  0.5f, 0.0f,		// Top right
-		0.5f, -0.5f, 0.0f,		// Bottom right
-		-0.5f, -0.5f, 0.0f		// Bottom left 
+	// Creamos un buffer en la GPU y le pasamos los vertices
+	GLfloat vertices[] =
+	{
+		0.0f,0.5f,0.0f, // Top
+		0.5f,-0.5f,0.0f, // Derecha
+		-0.5f,-0.5f,0.0f // Izquierrda
 	};
 
-	GLuint indices[] = {
-		0, 1, 2,  // First Triangle
-		0, 2, 3   // Second Triangle
-	};
+	GLuint vbo,vao;
+	glGenBuffers(1,&vbo);
+	glBindBuffer(GL_ARRAY_BUFFER,vbo);
+	glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW); 
+	/*
+		GL_STATIC_DRAW = crear una vez y editar varias
+		GL_DINAMIC_DRAW = usar varias veces
+		GL_STREAM_DRAW = crear una vez cambiarlo una vez uso de una vez
+	*/
 
-	GLuint vbo, ibo, vao;
+	glGenVertexArrays(1,&vao);
+	glBindVertexArray(vao);
 
-	glGenBuffers(1, &vbo);					
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);		
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);	
-
-	glGenVertexArrays(1, &vao);				
-	glBindVertexArray(vao);					
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);	
-	glEnableVertexAttribArray(0);			
-
-										
-	glGenBuffers(1, &ibo);	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
+	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,NULL);
+	glEnableVertexAttribArray(0);
 
 
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &vertexShaderSrc, NULL);
+	glShaderSource(vs,1,&vertexShaderSrc,NULL);
 	glCompileShader(vs);
 
-	// Check for compile errors
 	GLint result;
 	GLchar infoLog[512];
-	glGetShaderiv(vs, GL_COMPILE_STATUS, &result);
+	glGetShaderiv(vs,GL_COMPILE_STATUS,&result);
+
 	if (!result)
 	{
-		glGetShaderInfoLog(vs, sizeof(infoLog), NULL, infoLog);
-		std::cout << "Error! Vertex shader failed to compile. " << infoLog << std::endl;
+		glGetShaderInfoLog(vs,sizeof(infoLog),NULL,infoLog);
 	}
 
-
-	GLint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fs, 1, &fragmentShaderSrc, NULL);
+	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fs,1,&fragmentShaderSrc,NULL);
 	glCompileShader(fs);
+	glGetShaderiv(fs,GL_COMPILE_STATUS,&result);
 
-	// Check for compile errors
-	glGetShaderiv(fs, GL_COMPILE_STATUS, &result);
 	if (!result)
 	{
-		glGetShaderInfoLog(fs, sizeof(infoLog), NULL, infoLog);
-		std::cout << "Error! Fragment shader failed to compile. " << infoLog << std::endl;
+		glGetShaderInfoLog(fs,sizeof(infoLog),NULL,infoLog);
 	}
 
-	GLint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vs);
-	glAttachShader(shaderProgram, fs);
+	GLuint shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram,vs);
+	glAttachShader(shaderProgram,fs);
 	glLinkProgram(shaderProgram);
 
-	// Check for linker errors
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &result);
+	glGetProgramiv(shaderProgram,GL_LINK_STATUS,&result);
 	if (!result)
 	{
-		glGetProgramInfoLog(shaderProgram, sizeof(infoLog), NULL, infoLog);
-		std::cout << "Error! Shader program linker failure. " << infoLog  << std::endl;
+		glGetShaderInfoLog(shaderProgram,sizeof(infoLog),NULL,infoLog);
 	}
 
-	// Clean up shaders
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
-
-	// Rendering loop
-	while (!glfwWindowShouldClose(gWindow))
+	// Main Loop
+	while (!glfwWindowShouldClose(pWindow))
 	{
-		showFPS(gWindow);
-
-		// Poll for and process events
+		showFPS(pWindow);
 		glfwPollEvents();
-
-		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Render the quad (two triangles)
 		glUseProgram(shaderProgram);
+
 		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES,0,3);
 		glBindVertexArray(0);
 
-		// Swap front and back buffers
-		glfwSwapBuffers(gWindow);
+		glfwSwapBuffers(pWindow);
 	}
 
-	// Clean up
 	glDeleteProgram(shaderProgram);
-	glDeleteVertexArrays(1, &vao);
-	glDeleteBuffers(1, &vbo);
-	glDeleteBuffers(1, &ibo);
+	glDeleteVertexArrays(1,&vao);
+	glDeleteBuffers(1,&vbo);
+
 
 	glfwTerminate();
 
 	return 0;
 }
 
-
-bool initOpenGL()
+bool inicializarOpenGL()
 {
-	// Intialize GLFW 
-	if (!glfwInit())
+	if(!glfwInit())
 	{
-		// An error
-		std::cerr << "GLFW initialization failed" << std::endl;
+		cerr<< "Inicializacion de GLFW Fallida"<<endl;
 		return false;
 	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);	
+	// Definimos la version de OpenGL que usaremos
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
 
-															
-	gWindow = glfwCreateWindow(gWindowWidth, gWindowHeight, APP_TITLE, NULL, NULL);
-	if (gWindow == NULL)
+	 pWindow = NULL;
+
+	if (gfullscreen)
 	{
-		std::cerr << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
+		GLFWmonitor *Monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode*pVmode = glfwGetVideoMode(Monitor);
+		if (pVmode != NULL)
+		{
+			pWindow = glfwCreateWindow(pVmode->width,pVmode->height,APP_TITTLE,Monitor,NULL);
+		}
+	}
+	else
+	{
+		pWindow = glfwCreateWindow(gWindowWidth,gWindowHeight,APP_TITTLE,NULL,NULL);
+	}
+
+
+
+	if (pWindow == NULL)
+	{
+		cerr<<"Error al crear ventana en GLFW"<<endl;
 		return false;
 	}
 
-	// Make the window's context the current one
-	glfwMakeContextCurrent(gWindow);
+	glfwMakeContextCurrent(pWindow);
 
-	// Initialize GLEW
+	glfwSetKeyCallback(pWindow,glfw_onKey);
+
 	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
+	if (glewInit()!=GLEW_OK)
 	{
-		std::cerr << "Failed to initialize GLEW" << std::endl;
+		cerr<< "Inicializacion de GLEW Fallida!"<<endl;
 		return false;
 	}
-
-	// Set the required callback functions
-	glfwSetKeyCallback(gWindow, glfw_onKey);
-	glfwSetFramebufferSizeCallback(gWindow, glfw_onFramebufferSize);
-
-	glClearColor(0.23f, 0.38f, 0.47f, 1.0f);
-
-	// Define the viewport dimensions
-	glViewport(0, 0, gWindowWidth, gWindowHeight);
-
+	glClearColor(0.25f,0.38f,0.47f,1.0f);
 	return true;
+
 }
 
 void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-
-	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+	if (key == GLFW_KEY_SPACE && action==GLFW_PRESS)
 	{
-		gWireframe = !gWireframe;
-		if (gWireframe)
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		else
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glfwSetWindowShouldClose(window,GL_TRUE);
 	}
 }
 
-
-void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
+void showFPS(GLFWwindow*window)
 {
-	glViewport(0, 0, width, height);
-}
-
-
-void showFPS(GLFWwindow* window)
-{
-	static double previousSeconds = 0.0;
-	static int frameCount = 0;
-	double elapsedSeconds;
-	double currentSeconds = glfwGetTime(); 
-
-	elapsedSeconds = currentSeconds - previousSeconds;
-
-	// Limit text updates to 4 times per second
-	if (elapsedSeconds > 0.25)
+	static double tiempoPrevio = 0.0;
+	static int conteoFrames = 0;
+	double delta ;
+	double tiempoActual = glfwGetTime();
+	delta = tiempoActual - tiempoPrevio;
+	if (delta > 0.25)
 	{
-		previousSeconds = currentSeconds;
-		double fps = (double)frameCount / elapsedSeconds;
+		tiempoPrevio = tiempoActual;
+		double fps = double(conteoFrames)/delta;
 		double msPerFrame = 1000.0 / fps;
 
-		// The C++ way of setting the window title
-		std::ostringstream outs;
-		outs.precision(3);	// decimal places
-		outs << std::fixed
-			<< APP_TITLE << "    "
-			<< "FPS: " << fps << "    "
-			<< "Frame Time: " << msPerFrame << " (ms)";
-		glfwSetWindowTitle(window, outs.str().c_str());
-
-		// Reset for next average.
-		frameCount = 0;
+		ostringstream outs;
+		outs.precision(2);
+		outs<<fixed<<APP_TITTLE<<" FPS:"<<fps<<" Frame Time:"<<msPerFrame<<"(ms)";
+		glfwSetWindowTitle(window,outs.str().c_str());
+		conteoFrames=0;
 	}
-
-	frameCount++;
+	conteoFrames++;
 }
