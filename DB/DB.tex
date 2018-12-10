@@ -118,7 +118,10 @@ Para facilitar el proceso de elaboración del Diagrama, tendremos las siguientes
 \end{figure}
 \pagebreak
 \section*{Diseño Lógico}
-En esta etapa se presenta el código realizado en Microsoft SQL Server. A continuación las implementaciones de las tablas:
+Luego de realizar el Diseño Conceptual, procedemos a realizar el mapeo del diseño, con lo que tenemos la siguientes tablas:
+\begin{center}
+\includegraphics[width=13cm]{dd} 
+\end{center}
 \section*{Diseño Físico}
 \subsubsection{Detalle Tratamiento}
 \begin{lstlisting}[language=sql]
@@ -209,6 +212,7 @@ create table Prescripcion(
 	EfectoSegundario varchar(200) not null,
 	primary key(ID_Prescripcion),);
 \end{lstlisting}
+\pagebreak
 \subsubsection{Tratamiento}
 \begin{lstlisting}[language=sql]
 create table Tratamiento(
