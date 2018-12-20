@@ -11,6 +11,6 @@
   * [Pointers](https://www.youtube.com/watch?v=W0aE-w61Cb8)
   
 ## Libraries
-  * [GLFW](http://www.glfw.org/)
-  * [GLEW](http://glew.sourceforge.net/)
-  * [GLM](https://glm.g-truc.net/0.9.9/index.html)
+  * [GLFW (Graphics Library Framework)](http://www.glfw.org/)
+  * [GLEW (The OpenGL Extension Wrangler Library)](http://glew.sourceforge.net/)
+  * [GLM (OpenGL Mathematics)](https://glm.g-truc.net/0.9.9/index.html)
