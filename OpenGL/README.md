@@ -14,5 +14,6 @@
   * [GLFW (Graphics Library Framework)](http://www.glfw.org/)
   * [GLEW (The OpenGL Extension Wrangler Library)](http://glew.sourceforge.net/)
   * [GLM (OpenGL Mathematics)](https://glm.g-truc.net/0.9.9/index.html)
+  * [STB (Single-file)](https://github.com/nothings/stb)
 ## Tutorials
   * [Learn Modern OpenGL Programming by Game Institute Inc.](https://www.udemy.com/share/10012gBUsdcFZURnQ=/)
