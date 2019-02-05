@@ -1,7 +1,4 @@
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
- //Kaan Yamanyar,Levent Seckin
- Shader "FastFoodFighters/ShinyDefault"
+Shader "Custom/ShinyDefault"
  {
      Properties
      {
