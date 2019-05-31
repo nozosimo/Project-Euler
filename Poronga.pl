@@ -26,3 +26,17 @@ tiempoEspera([_],0).
 tiempoEspera(L,T):- tiempoViaje(L,A),
 					totalViaje(L,B),
 					T is B-A.
+% 8.
+pertenece([],_):-false.
+pertenece([X|_],X):-!.
+pertenece([_|L],E):- pertenece(L,E).
+
+interseccion([],[],[]):-!.
+interseccion([],_,[]):-!.
+interseccion(_,[],[]):-!.
+interseccion([X|L1],L2,[X|L]):- pertenece(L2,X),
+interseccion(L1,L2,L).
+interseccion([_|L1],L2,L):- interseccion(L1,L2,L).
+
+esvacio([]).
+mismosPuntos(L1,L2):- interseccion(L1,L2,L),esvacio(L).
