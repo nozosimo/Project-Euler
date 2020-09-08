@@ -8,3 +8,8 @@ Existen los siguientes ejemplos:
 * Torre
 * Alfil
 * Reina
+
+
+<div align="center">
+	<img width="250"  src="Screenshots/screenshot.png" alt="screen">
+</div>
